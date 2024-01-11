@@ -90,17 +90,22 @@ class ViewPlugin(object):
 
     @pibooth.hookimpl
     def state_choose_enter(self, app, win):
-        LOGGER.info("Show picture choice (nothing selected)")
+        ("Show picture choice (nothing selected)")
         win.set_print_number(0, False)  # Hide printer status
         win.show_choice(app.capture_choices)
         self.choose_timer.start()
 
     @pibooth.hookimpl
+    #tourne en continue avant le choix du type de photo
+
     def state_choose_validate(self, cfg, app):
+        LOGGER.info("STATE CHOOSE VALIDATE")
         if app.capture_nbr:
             if cfg.getfloat('WINDOW', 'chosen_delay') > 0:
+                LOGGER.info("CHOSEN CHOSE")
                 return 'chosen'
             else:
+                LOGGER.info("CHOSE PREVIEW CHOSE")
                 return 'preview'
         elif self.choose_timer.is_timeout():
             return 'wait'
@@ -116,57 +121,60 @@ class ViewPlugin(object):
 
     @pibooth.hookimpl
     def state_chosen_validate(self):
+        LOGGER.info("STATE CHOSEN VALIDATE")
         if self.layout_timer.is_timeout():
             return 'preview'
 
-    @pibooth.hookimpl
-    def state_preview_enter(self, app, win):
-        self.count += 1
-        win.set_capture_number(self.count, app.capture_nbr)
+    # @pibooth.hookimpl
+    # def state_preview_enter(self, app, win):
+    #     LOGGER.info("Display the preview")
+    #     self.count += 1
+    #     win.set_capture_number(self.count, app.capture_nbr)
 
-    @pibooth.hookimpl
-    def state_preview_validate(self):
-        return 'capture'
+    # @pibooth.hookimpl
+    # def state_preview_validate(self):
+    #     LOGGER.info("STATE PREVIEW VALIDATE")
+    #     return 'capture'
 
-    @pibooth.hookimpl
-    def state_capture_do(self, app, win):
-        win.set_capture_number(self.count, app.capture_nbr)
+    # @pibooth.hookimpl
+    # def state_capture_do(self, app, win):
+    #     win.set_capture_number(self.count, app.capture_nbr)
 
-    @pibooth.hookimpl
-    def state_capture_validate(self, app):
-        if self.count >= app.capture_nbr:
-            return 'processing'
-        return 'preview'
+    # @pibooth.hookimpl
+    # def state_capture_validate(self, app):
+    #     if self.count >= app.capture_nbr:
+    #         return 'processing'
+    #     return 'preview'
 
-    @pibooth.hookimpl
-    def state_processing_enter(self, win):
-        win.show_work_in_progress()
+    # @pibooth.hookimpl
+    # def state_processing_enter(self, win):
+    #     win.show_work_in_progress()
 
-    @pibooth.hookimpl
-    def state_processing_validate(self, cfg, app):
-        if app.printer.is_ready() and cfg.getfloat('PRINTER', 'printer_delay') > 0\
-                and app.count.remaining_duplicates > 0:
-            return 'print'
-        return 'finish'  # Can not print
+    # @pibooth.hookimpl
+    # def state_processing_validate(self, cfg, app):
+    #     if app.printer.is_ready() and cfg.getfloat('PRINTER', 'printer_delay') > 0\
+    #             and app.count.remaining_duplicates > 0:
+    #         return 'print'
+    #     return 'finish'  # Can not print
 
-    @pibooth.hookimpl
-    def state_print_enter(self, cfg, app, win):
-        LOGGER.info("Display the final picture")
-        win.show_print(app.previous_picture)
-        win.set_print_number(len(app.printer.get_all_tasks()), not app.printer.is_ready())
+    # @pibooth.hookimpl
+    # def state_print_enter(self, cfg, app, win):
+    #     LOGGER.info("Display the final picture")
+    #     win.show_print(app.previous_picture)
+    #     win.set_print_number(len(app.printer.get_all_tasks()), not app.printer.is_ready())
 
-        # Reset timeout in case of settings changed
-        self.print_view_timer.timeout = cfg.getfloat('PRINTER', 'printer_delay')
-        self.print_view_timer.start()
+    #     # Reset timeout in case of settings changed
+    #     self.print_view_timer.timeout = cfg.getfloat('PRINTER', 'printer_delay')
+    #     self.print_view_timer.start()
 
-    @pibooth.hookimpl
-    def state_print_validate(self, app, win, events):
-        printed = app.find_print_event(events)
-        self.forgotten = app.find_capture_event(events)
-        if self.print_view_timer.is_timeout() or printed or self.forgotten:
-            if printed:
-                win.set_print_number(len(app.printer.get_all_tasks()), not app.printer.is_ready())
-            return 'finish'
+    # @pibooth.hookimpl
+    # def state_print_validate(self, app, win, events):
+    #     printed = app.find_print_event(events)
+    #     self.forgotten = app.find_capture_event(events)
+    #     if self.print_view_timer.is_timeout() or printed or self.forgotten:
+    #         if printed:
+    #             win.set_print_number(len(app.printer.get_all_tasks()), not app.printer.is_ready())
+    #         return 'finish'
 
     @pibooth.hookimpl
     def state_finish_enter(self, cfg, app, win):
