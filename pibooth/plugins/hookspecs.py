@@ -271,6 +271,59 @@ def state_chosen_exit(cfg, app, win):
     :param win: graphical window instance
     """
 
+# --- Question State -----------------------------------------------------------
+
+@hookspec
+def state_question_enter(cfg, app, win):
+    """Actions performed when application enter in Question state.
+
+    :param cfg: application configuration
+    :param app: application instance
+    :param win: graphical window instance
+    """
+
+@hookspec
+def state_question_do(cfg, app, win, events):
+    """Actions performed when application is in Question state.
+    This hook is called in a loop until the application can switch
+    to the next state.
+
+    :param cfg: application configuration
+    :param app: application instance
+    :param win: graphical window instance
+    :param events: pygame events generated since last call
+    """
+
+@hookspec(firstresult=True)
+def state_question_validate(cfg, app, win, events):
+    """Return the next state name if application can switch to it
+    else return None.
+
+    :param cfg: application configuration
+    :param app: application instance
+    :param win: graphical window instance
+    :param events: pygame events generated since last call
+    """
+
+@hookspec
+def state_question_reject(cfg, app, win):
+    """Actions performed when application detects bad answer in Question state.
+       show another question or go back to choose state
+
+    :param cfg: application configuration
+    :param app: application instance
+    :param win: graphical window instance
+    """
+
+@hookspec
+def state_question_exit(cfg, app, win):
+    """Actions performed when application exit Question state.
+
+    :param cfg: application configuration
+    :param app: application instance
+    :param win: graphical window instance
+    """
+
 
 # --- Preview State ------------------------------------------------------------
 
