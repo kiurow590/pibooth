@@ -5,6 +5,28 @@ from pibooth import pictures, fonts
 from pibooth.utils import LOGGER, PoolingTimer
 
 
+class Button:
+    def __init__(self, text, pos, font, color=(0, 0, 0), bg_color=(255, 255, 255), radius=10):
+        self.text = text
+        self.pos = pos
+        self.font = font
+        self.color = color
+        self.bg_color = bg_color
+        self.radius = radius
+        self.surface = self.font.render(self.text, True, self.color)
+        self.rect = self.surface.get_rect(center=self.pos)
+
+    def draw(self, win):
+        draw_rounded_rect(win, self.rect.inflate(10, 10), self.bg_color, self.radius)
+        win.blit(self.surface, self.rect.topleft)
+
+    def is_clicked(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                return True
+        return False
+
+
 def draw_rounded_rect(surface, rect, color, corner_radius):
     """Draw a rectangle with rounded corners on the specified surface."""
     if corner_radius < 0:
@@ -52,10 +74,8 @@ def state_wait_exit(win):
                      question_surface.get_rect(center=(win_rect.centerx, win_rect.height // 4)).topleft)
 
     answer = ["42", "43", "44", "69"]
-    answer_surface = []
+    buttons = []
     for i in range(len(answer)):
-        # Render the answer text in black
-        answer_surface.append(font.render(answer[i], True, (0, 0, 0)))
         if i == 0:
             pos = (win_rect.centerx, win_rect.height // 1.5 - win_rect.height // 10)
         elif i == 1:
@@ -64,13 +84,23 @@ def state_wait_exit(win):
             pos = (win_rect.centerx, win_rect.height // 1.5 + win_rect.height // 10)
         else:
             pos = (win_rect.centerx + win_rect.width // 10, win_rect.height // 1.5)
-        answer_rect = answer_surface[i].get_rect(center=pos)
-        draw_rounded_rect(win.surface, answer_rect.inflate(10, 10), (255, 255, 255), 10)
-        win.surface.blit(answer_surface[i], answer_rect.topleft)
+        buttons.append(Button(answer[i], pos, font))
+
+    for button in buttons:
+        button.draw(win.surface)
 
     # Force screen update and events process
     pygame.display.update()
     pygame.event.pump()
 
-    # Wait 1s
-    time.sleep(5)
+    # Wait for a click on a button
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            for button in buttons:
+                if button.is_clicked(event):
+                    print(f"You clicked on {button.text}")
+                    running = False
+        time.sleep(1)

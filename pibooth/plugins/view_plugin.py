@@ -99,7 +99,7 @@ class ViewPlugin(object):
     #tourne en continue avant le choix du type de photo
 
     def state_choose_validate(self, cfg, app):
-        LOGGER.info("STATE CHOOSE VALIDATE")
+        #LOGGER.info("STATE CHOOSE VALIDATE")
         if app.capture_nbr:
             if cfg.getfloat('WINDOW', 'chosen_delay') > 0:
                 LOGGER.info("CHOSEN CHOSE")
@@ -121,7 +121,7 @@ class ViewPlugin(object):
 
     @pibooth.hookimpl
     def state_chosen_validate(self):
-        LOGGER.info("STATE CHOSEN VALIDATE")
+        #LOGGER.info("STATE CHOSEN VALIDATE")
         if self.layout_timer.is_timeout():
             return 'preview'
 
